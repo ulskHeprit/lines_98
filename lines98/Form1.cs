@@ -19,22 +19,30 @@ namespace lines98
 
         PictureBox[,] arr;
         PictureBox temp;
+        List<PictureBox> empty;
         Bitmap[,] bmp;
         Graphics gr;
         Random rnd;
         Pen pen;
+        int score;
+        int[,] secarr;
+
+        Brush[] br =  { new SolidBrush(Color.Red), new SolidBrush(Color.Blue), new SolidBrush(Color.Yellow)
+                        , new SolidBrush(Color.Green), new SolidBrush(Color.Violet), new SolidBrush(Color.Orange), new SolidBrush(Color.SkyBlue) };
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            empty = new List<PictureBox>();
             Brush s = Brushes.Red;
             pen = new Pen(s);
+            score = 0;
             //MessageBox.Show(pen.Color.ToString());
             
 
             try
             {
                 arr = new PictureBox[10, 10];
+                secarr = new int[12, 12];
                 int size = panel1.Height < panel1.Width ? panel1.Height : panel1.Width;
                 for (int i = 0; i < 10; i++)
                 {
@@ -45,7 +53,9 @@ namespace lines98
                         arr[i, j].Height = size / 10;
                         arr[i, j].Width = size / 10;
                         arr[i, j].BackColor = Color.LightGray;
-                        //arr[i, j].BorderStyle = BorderStyle.FixedSingle;
+
+                        arr[i, j].BorderStyle = BorderStyle.FixedSingle;
+
                         arr[i, j].Left = (panel1.Width - size) / 2 + arr[i, j].Width * j;
                         arr[i, j].Top = (panel1.Height - size) / 2 + arr[i, j].Height * i;
                         arr[i, j].MouseClick += new MouseEventHandler(mouseclick);
@@ -56,8 +66,7 @@ namespace lines98
                     }
                 }
                 bmp = new Bitmap[2, 7];
-                Brush[] br =  { new SolidBrush(Color.Red), new SolidBrush(Color.Blue), new SolidBrush(Color.Yellow)
-                        , new SolidBrush(Color.Green), new SolidBrush(Color.Violet), new SolidBrush(Color.Orange), new SolidBrush(Color.SkyBlue) };
+               
                 rnd = new Random();
                 for (int i = 0; i < 7; i++)
                 {
@@ -80,9 +89,11 @@ namespace lines98
                     b = rnd.Next(9);
                     arr[a, b].Image = bmp[1, i];
                     arr[a, b].Image.Tag = ((SolidBrush)br[i]).Color;
+                    arr[a, b].Tag = false;
                 }
                 temp = arr[0, 0];
                 panel1.SendToBack();
+                textBox1.BringToFront();
             }
             catch(Exception ex) { MessageBox.Show(ex.ToString()); }
         }
@@ -119,11 +130,12 @@ namespace lines98
         private void mouseclick(object sender, MouseEventArgs e)
         {
             //try
-            {
+            { 
                 if (e.Button == MouseButtons.Left)
                 {
                     if (Convert.ToBoolean((sender as PictureBox).Tag) == true)
                     {
+                        //click big box
                         temp.BackColor = Color.LightGray;
                         (sender as PictureBox).BackColor = Color.Gray;
                         temp = (sender as PictureBox);
@@ -132,18 +144,180 @@ namespace lines98
                     {
                         if (temp.BackColor == Color.Gray)
                         {
-                            if((sender as PictureBox).Image.Tag.ToString()  == "Color [Blue]") { MessageBox.Show("true"); }
-                            MessageBox.Show((sender as PictureBox).Image.Tag.ToString());
-                            (sender as PictureBox).Image = temp.Image;
-                            (sender as PictureBox).Tag = true;
-                            temp.Image = null;
-                            temp.BackColor = Color.LightGray;
-                            temp.Tag = null;
+                            //if have selected box(big) and click to !bigbox
+                            
+                            if (checkpath(temp, sender as PictureBox))
+                            {
+                                (sender as PictureBox).Image = temp.Image;
+                                (sender as PictureBox).Image.Tag = temp.Image.Tag;
+                                (sender as PictureBox).Tag = true;
+                                temp.Image.Tag = null;
+                                temp.Image = null;
+                                temp.BackColor = Color.LightGray;
+                                temp.Tag = false;
+                                next();
+                            }
                         }
                     }
                 }
             }
             //catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+        }
+
+        private void next()
+        {
+            empty.Clear();
+            foreach(PictureBox pb in arr)
+            {
+                if(Convert.ToBoolean(pb.Tag) == false && Convert.ToString(pb.Image) != "")
+                {
+                    for(int i=0;i<7;i++)
+                    {
+                        if ((pb.Image as Bitmap) == bmp[1,i])
+                        {
+                            pb.Image = bmp[0, i];
+                            pb.Tag = true;
+
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if(Convert.ToString(pb.Image) == "")
+                    {
+                        empty.Add(pb);
+                    }
+                }
+            }
+            int a,b;
+            for(int i = 0; i < (( empty.Count / 2 ) > 3 ? 3 : (empty.Count / 2)+1 ); i++ )
+            {
+                if (empty.Count > 1)
+                {
+                    a = rnd.Next(empty.Count);
+                    b = rnd.Next(7);
+                    empty[a].Image = bmp[1, b];
+                    empty[a].Image.Tag = ((SolidBrush)br[b]).Color;
+                    empty[a].Tag = false;
+                }
+                else
+                {
+                    a = rnd.Next(empty.Count);
+                    b = rnd.Next(7);
+                    empty[a].Image = bmp[0, b];
+                    empty[a].Image.Tag = ((SolidBrush)br[b]).Color;
+                    empty[a].Tag = true;
+                    MessageBox.Show("Lose");
+                }
+            }
+            Text = ((empty.Count/2)+1).ToString();
+        }
+
+        private void test()
+        {/*
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    secarr[i + 1, j + 1] = Convert.ToBoolean(arr[i, j].Tag) ? -1 : 0;
+                }
+            }*/
+            textBox1.Text = "";
+            for (int i = 0; i < 12; i++)
+            {
+                for (int j = 0; j < 12; j++)
+                {
+                    if (i == 0) { secarr[i, j] = -1; }
+                    if (i == 11) { secarr[i, j] = -1; }
+                    if (j == 0) { secarr[i, j] = -1; }
+                    if (j == 11) { secarr[i, j] = -1; }
+
+                    textBox1.Text += secarr[i , j] + "  ";
+                }
+                textBox1.Text += Environment.NewLine;
+            }
+        }
+
+        private bool checkpath(PictureBox a, PictureBox b)
+        {
+            int x1 = 0;
+            int y1 = 0;
+            int x2 = 0;
+            int y2 = 0;
+            //get indexes of start and end of path
+            //с таким массивом удобнее
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (a.Name == arr[i, j].Name)
+                    {
+                        x1 = i + 1;
+                        y1 = j + 1;
+                    }
+                    else
+                    {
+                        if (b.Name == arr[i, j].Name)
+                        {
+                            x2 = i + 1;
+                            y2 = j + 1;
+                        }
+                    }
+                    secarr[i + 1, j + 1] = Convert.ToBoolean(arr[i, j].Tag) ? -1 : 0;
+                }
+            }
+            for (int i = 0; i < 12; i++)
+            {
+                for (int j = 0; j < 12; j++)
+                {
+                    if (i == 0) { secarr[i, j] = -1; }
+                    if (i == 11) { secarr[i, j] = -1; }
+                    if (j == 0) { secarr[i, j] = -1; }
+                    if (j == 11) { secarr[i, j] = -1; }
+                }
+            }
+
+            secarr[x1, y1] = 1;
+            int d = 1;
+            secarr[x2, y2] = 999;
+            if (secarr[x2+1,y2]+ secarr[x2-1, y2] + secarr[x2, y2+1] + secarr[x2, y2-1] == -4) return false;
+            //textBox1.Text = "";
+            for(int k = 0;k<120;k++)
+            {
+
+                for (int i = 1; i < 11; i++)
+                {
+                    for (int j = 1; j < 11; j++)
+                    {
+                        if(secarr[i,j] == d)
+                        {
+                                secarr[i + 1, j] = secarr[i + 1, j] == 0 ? d + 1 : secarr[i + 1, j]; 
+                                secarr[i - 1, j] = secarr[i - 1, j] == 0 ? d + 1 : secarr[i - 1, j]; 
+                                secarr[i, j + 1] = secarr[i, j + 1] == 0 ? d + 1 : secarr[i, j + 1]; 
+                                secarr[i, j - 1] = secarr[i, j - 1] == 0 ? d + 1 : secarr[i, j - 1]; 
+                        }
+                        //textBox1.Text += secarr[j, i].ToString() + " ";
+                    }
+                    //textBox1.Text += Environment.NewLine;
+                }
+                if (secarr[x2 + 1, y2] > 0) return true; 
+                if (secarr[x2 - 1, y2] > 0) return true; 
+                if (secarr[x2, y2 + 1] > 0) return true; 
+                if (secarr[x2, y2 - 1] > 0) return true; 
+                d++;
+            }
+            return false;
+        }
+
+        private void checkballs()
+        {
+
+        }
+
+        private void test(object sender, EventArgs e)
+        {
+            test();
         }
     }
 }
