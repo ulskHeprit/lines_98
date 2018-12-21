@@ -14,8 +14,8 @@ namespace lines98
     {
         public Form1()
         {
-            size1 = 15;
-            size2 = 15;
+            size1 = 9;
+            size2 = 9;
             InitializeComponent();
         }
 
@@ -82,14 +82,14 @@ namespace lines98
                     gr.FillEllipse(br[i], 30, 30, 40, 40);
                     gr.DrawEllipse(Pens.Black, 30, 30, 40, 40);
                     //big
-                    int a = rnd.Next(9);
-                    int b = rnd.Next(9);
+                    int a = rnd.Next(size1-1);
+                    int b = rnd.Next(size2-1);
                     arr[a,b].Image = bmp[0, i];
                     arr[a, b].Image.Tag = ((SolidBrush)br[i]).Color;
                     arr[a, b].Tag = true;
                     //small
-                    a = rnd.Next(9);
-                    b = rnd.Next(9);
+                    a = rnd.Next(size1-1);
+                    b = rnd.Next(size2-1);
                     arr[a, b].Image = bmp[1, i];
                     arr[a, b].Image.Tag = ((SolidBrush)br[i]).Color;
                     arr[a, b].Tag = false;
