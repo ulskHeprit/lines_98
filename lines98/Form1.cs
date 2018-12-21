@@ -14,6 +14,8 @@ namespace lines98
     {
         public Form1()
         {
+            size1 = 15;
+            size2 = 15;
             InitializeComponent();
         }
 
@@ -26,6 +28,7 @@ namespace lines98
         Pen pen;
         int score;
         int[,] secarr;
+        int size1,size2;
 
         Brush[] br =  { new SolidBrush(Color.Red), new SolidBrush(Color.Blue), new SolidBrush(Color.Yellow)
                         , new SolidBrush(Color.Green), new SolidBrush(Color.Violet), new SolidBrush(Color.Orange), new SolidBrush(Color.SkyBlue) };
@@ -41,17 +44,17 @@ namespace lines98
 
             try
             {
-                arr = new PictureBox[10, 10];
-                secarr = new int[12, 12];
+                arr = new PictureBox[size1, size2];
+                secarr = new int[size1+2, size2+2];
                 int size = panel1.Height < panel1.Width ? panel1.Height : panel1.Width;
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < size1; i++)
                 {
-                    for (int j = 0; j < 10; j++)
+                    for (int j = 0; j < size2; j++)
                     {
                         arr[i, j] = new PictureBox();
                         arr[i, j].Name = "picturebox" + i.ToString() + j.ToString();
-                        arr[i, j].Height = size / 10;
-                        arr[i, j].Width = size / 10;
+                        arr[i, j].Height = size / size1;
+                        arr[i, j].Width = size / size2;
                         arr[i, j].BackColor = Color.LightGray;
 
                         arr[i, j].BorderStyle = BorderStyle.FixedSingle;
@@ -108,12 +111,12 @@ namespace lines98
             try
             {
                 int size = panel1.Height < panel1.Width ? panel1.Height : panel1.Width;
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < size1; i++)
                 {
-                    for (int j = 0; j < 10; j++)
+                    for (int j = 0; j < size2; j++)
                     {
-                        arr[i, j].Height = size / 10;
-                        arr[i, j].Width = size / 10;
+                        arr[i, j].Height = size / size1;
+                        arr[i, j].Width = size / size2;
                         arr[i, j].Left = (panel1.Width - size) / 2 + arr[i, j].Width * j;
                         arr[i, j].Top = (panel1.Height - size) / 2 + arr[i, j].Height * i;
                     }
@@ -224,9 +227,9 @@ namespace lines98
                 }
             }*/
             textBox1.Text = "";
-            for (int i = 0; i < 12; i++)
+            for (int i = 0; i < size1+2; i++)
             {
-                for (int j = 0; j < 12; j++)
+                for (int j = 0; j < size2+2; j++)
                 {
                     if (i == 0) { secarr[i, j] = -1; }
                     if (i == 11) { secarr[i, j] = -1; }
@@ -247,9 +250,9 @@ namespace lines98
             int y2 = 0;
             //get indexes of start and end of path
             //с таким массивом удобнее
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < size1; i++)
             {
-                for (int j = 0; j < 10; j++)
+                for (int j = 0; j < size2; j++)
                 {
                     if (a.Name == arr[i, j].Name)
                     {
@@ -267,14 +270,14 @@ namespace lines98
                     secarr[i + 1, j + 1] = Convert.ToBoolean(arr[i, j].Tag) ? -1 : 0;
                 }
             }
-            for (int i = 0; i < 12; i++)
+            for (int i = 0; i < size1+2; i++)
             {
-                for (int j = 0; j < 12; j++)
+                for (int j = 0; j < size2+2; j++)
                 {
                     if (i == 0) { secarr[i, j] = -1; }
-                    if (i == 11) { secarr[i, j] = -1; }
+                    if (i == size1+1) { secarr[i, j] = -1; }
                     if (j == 0) { secarr[i, j] = -1; }
-                    if (j == 11) { secarr[i, j] = -1; }
+                    if (j == size2+1) { secarr[i, j] = -1; }
                 }
             }
 
@@ -283,12 +286,12 @@ namespace lines98
             secarr[x2, y2] = 999;
             if (secarr[x2+1,y2]+ secarr[x2-1, y2] + secarr[x2, y2+1] + secarr[x2, y2-1] == -4) return false;
             //textBox1.Text = "";
-            for(int k = 0;k<120;k++)
+            for(int k = 0;k<Math.Pow( Math.Max(size1,size2),2);k++)
             {
 
-                for (int i = 1; i < 11; i++)
+                for (int i = 1; i < size1+1; i++)
                 {
-                    for (int j = 1; j < 11; j++)
+                    for (int j = 1; j < size2+1; j++)
                     {
                         if(secarr[i,j] == d)
                         {
