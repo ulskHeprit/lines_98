@@ -16,6 +16,7 @@ namespace lines98
         {
             size1 = 9;
             size2 = 9;
+            temp = new PictureBox();
             InitializeComponent();
         }
 
@@ -28,7 +29,8 @@ namespace lines98
         Pen pen;
         int score;
         int[,] secarr;
-        int size1,size2;
+        int size1, size2;
+        string[,,] strarr;
 
         Brush[] br =  { new SolidBrush(Color.Red), new SolidBrush(Color.Blue), new SolidBrush(Color.Yellow)
                         , new SolidBrush(Color.Green), new SolidBrush(Color.Violet), new SolidBrush(Color.Orange), new SolidBrush(Color.SkyBlue) };
@@ -46,6 +48,7 @@ namespace lines98
             {
                 arr = new PictureBox[size1, size2];
                 secarr = new int[size1+2, size2+2];
+                strarr = new string[size1, size2,2];
                 int size = panel1.Height < panel1.Width ? panel1.Height : panel1.Width;
                 for (int i = 0; i < size1; i++)
                 {
@@ -142,25 +145,41 @@ namespace lines98
                         temp.BackColor = Color.LightGray;
                         (sender as PictureBox).BackColor = Color.Gray;
                         temp = (sender as PictureBox);
+                        //MessageBox.Show(temp.BackColor.ToString());
                     }
                     else
                     {
                         if (temp.BackColor == Color.Gray)
                         {
-                            //if have selected box(big) and click to !bigbox
+                            //if have selected box(big) and click to emptybox
                             
                             if (checkpath(temp, sender as PictureBox))
                             {
                                 (sender as PictureBox).Image = temp.Image;
                                 (sender as PictureBox).Image.Tag = temp.Image.Tag;
                                 (sender as PictureBox).Tag = true;
-                                temp.Image.Tag = null;
+                                { }
+                                //temp.Image.Tag = null;
                                 temp.Image = null;
                                 temp.BackColor = Color.LightGray;
                                 temp.Tag = false;
                                 next();
+                                checkballs();
                             }
                         }
+                    }
+                }
+                else
+                {
+                    if(e.Button==MouseButtons.Right)
+                    {
+                        try
+                        {
+                            MessageBox.Show((sender as PictureBox).Name + Environment.NewLine +
+                                (sender as PictureBox).Image.ToString() + Environment.NewLine +
+                                (sender as PictureBox).Image.Tag.ToString() + Environment.NewLine);
+                        }
+                        catch { }
                     }
                 }
             }
@@ -179,6 +198,7 @@ namespace lines98
                         if ((pb.Image as Bitmap) == bmp[1,i])
                         {
                             pb.Image = bmp[0, i];
+                            pb.Image.Tag = ((SolidBrush)br[i]).Color;
                             pb.Tag = true;
 
                             break;
@@ -193,28 +213,27 @@ namespace lines98
                     }
                 }
             }
+
             int a,b;
             for(int i = 0; i < (( empty.Count / 2 ) > 3 ? 3 : (empty.Count / 2)+1 ); i++ )
             {
+                a = rnd.Next(empty.Count);
+                b = rnd.Next(7);
                 if (empty.Count > 1)
                 {
-                    a = rnd.Next(empty.Count);
-                    b = rnd.Next(7);
                     empty[a].Image = bmp[1, b];
                     empty[a].Image.Tag = ((SolidBrush)br[b]).Color;
                     empty[a].Tag = false;
                 }
                 else
                 {
-                    a = rnd.Next(empty.Count);
-                    b = rnd.Next(7);
                     empty[a].Image = bmp[0, b];
                     empty[a].Image.Tag = ((SolidBrush)br[b]).Color;
                     empty[a].Tag = true;
                     MessageBox.Show("Lose");
                 }
             }
-            Text = ((empty.Count/2)+1).ToString();
+            //Text = ((empty.Count/2)+1).ToString();
         }
 
         private void test()
@@ -315,12 +334,125 @@ namespace lines98
 
         private void checkballs()
         {
+            textBox1.Text = "";
+            for (int i = 0; i < size1; i++)
+            {
+                for (int j = 0; j < size2; j++)
+                {
+                    //if (Convert.ToBoolean(arr[i, j].Tag))
+                    {
+                        try
+                        {
+                            if (Convert.ToString(arr[i, j].Image.Tag) != "")
+                            {
+                                strarr[i, j, 0] = Convert.ToString(arr[i, j].Image.Tag);
+                                textBox1.Text += strarr[i, j, 0] + "!!!\t";
+                            }
+                            else { textBox1.Text += "FFF \t"; }
+                        }
+                        catch {                         textBox1.Text += "error \t";  }
+                    }
+                    //else
+                    {
+                       // textBox1.Text += "error \t";
+                    }
+                    strarr[i, j, 1] = "";
+                }
+                textBox1.Text += Environment.NewLine;
+            }
+            textBox1.BringToFront();
+            int count;
+            //horizontals
+            for(int i = 0; i < size1; i++)
+            {
+                count = 1;
+                for (int j = 1; j < size2; j++)
+                {
+                    if (strarr[i, j, 0] == strarr[i, j - 1, 0] && strarr[i,j,0] != null)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        if (count > 4)
+                        {
+                            for (int k = 1; k <= count; k++)
+                            {
+                                strarr[i, j - k, 1] = "del";
+                            }
+                        }
+                        count = 1;
+                    }
+                    if(j==8 && count > 4)
+                    {
+                        for (int k = 0; k < count; k++)
+                        {
+                            strarr[i, j - k, 1] = "del";
+                        }
+                    }
+                    //textBox1.Text += strarr[i, j, 1]+"\t";
+                }
+                //textBox1.Text += Environment.NewLine;
+            }
+            //verticals
+            for (int j = 0; j < size2; j++)
+            {
+                count = 1;
+                for (int i = 1; i < size1; i++)
+                {
+                    if (strarr[i, j, 0] == strarr[i-1, j, 0] && strarr[i, j, 0] != null)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        if (count > 4)
+                        {
+                            for (int k = 1; k <= count; k++)
+                            {
+                                strarr[i-k, j , 1] = "del";
+                            }
+                        }
+                        count = 1;
+                    }
+                    if (i == 8 && count > 4)
+                    {
+                        for (int k = 0; k < count; k++)
+                        {
+                            strarr[i-k, j , 1] = "del";
+                        }
+                    }
+                    textBox1.Text += strarr[i, j, 1] + "\t";
+                }
+                textBox1.Text += Environment.NewLine;
+            }
 
+            for(int i = 0; i < size1; i++)
+            {
+                for(int j = 0; j < size2; j++)
+                {
+                    if(strarr[i,j,1]=="del")
+                    {
+                        strarr[i, j, 1] = null;
+                        arr[i, j].Image = null;
+                        arr[i, j].Tag = false;
+                        score++;
+                    }
+                }
+            }
+            Text = "score: "+score.ToString();
         }
 
         private void test(object sender, EventArgs e)
         {
-            test();
+            //textBox1.Text = "";
+            //checkballs();
+            { }
+        }
+
+        private PictureBox Copy(PictureBox a)
+        {
+            return new PictureBox(){Name=a.Name+"1", Image=a.Image, Tag=a.Tag, BackColor=a.BackColor };
         }
     }
 }
